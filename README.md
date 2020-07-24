@@ -156,6 +156,13 @@ cd keptn-k3s-demo
 
 This can be an optional step, if you are using extensions or scripts within your pipeline that will "prepare" the keptn project.  Otherwise, these are the steps to setup the keptn project and test the SLO validation all from the SSH session within the host.
 
+# get the Keptn CLI and verify it is version 0.7
+
+```
+curl -sL https://get.keptn.sh | sudo -E bash
+keptn version
+```
+
 ### Setup required variables (post keptn install) for authorizing keptn CLI
 
 ```
