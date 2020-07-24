@@ -1,14 +1,23 @@
 # Overview
 
+Use Case:
 
+* Simple demo for keptn and bridge setup with simple demo app
+* The setup can be use to demo automated SLO valdiation can be performed within a pipeline tool like Azure DevOps or Atlassian bitbucket pipeline
 
-# Setup
+Setup: 
+* Keptn 0.7 (https://keptn.sh) on k3s on either AWS EC2 or Azure VM. 
+* Simple web app running on the same host as Keptn.  The Docker image is pre-built and can be deployed in k3s or just run as docker
+* Dynatrace OneAgent installed on the host
+* The demo app is onboarded to keptn as a project called `demo`, one stage called `dev` and on service called `simplenodeservice`
+
+# How to Setup
 
 ## 1. dynatrace
 
 * need to have a Dynatrace tenant
 * you need to make an api token for keptn installer to use
-* Keptn installer will create the autotagging rules for keptn_project, keptn_service, keptn_stage based on DT_CUSTOM_PROP values
+* NOTE the Keptn installer will create the autotagging rules for keptn_project, keptn_service, keptn_stage based on DT_CUSTOM_PROP values
 
 ## 2. Virtual Machine for Keptn
 
@@ -170,6 +179,6 @@ keptn add-resource --project=demo --stage=dev --service=simplenodeservice --reso
 ```
 ./sendtraffic.sh "http://localhost:8080" 150
 keptn send event start-evaluation --project=demo --stage=dev --service=simplenodeservice
-echo "Brige URL = https://$(curl -s http://checkip.amazonaws.com/)/bridge"
+echo "Bridge URL = https://bridge.keptn.$(curl -s http://checkip.amazonaws.com/).xip.io"
 keptn configure bridge --output
 ```
