@@ -19,8 +19,9 @@ Setup:
 * you need to make an api token for keptn installer to use
 * NOTE the Keptn installer will create the autotagging rules for keptn_project, keptn_service, keptn_stage based on DT_CUSTOM_PROP values
 
-## 2. Virtual Machine for Keptn
+## 2. Host for Keptn and the Demo App
 
+Goto the cloud provider web console and add the VM following the guide below.  You will need to SSH into the host to run all the commands below, so have your key pair ready to use.  In Azure you can use password authentication for the VM, but this is not recommended.
 
 <details>
   <summary>Azure VM</summary>
@@ -153,6 +154,8 @@ cd keptn-k3s-demo
 
 ## 5. Keptn Onboard Application
 
+This can be an optional step, if you are using extensions or scripts within your pipeline that will "prepare" the keptn project.  Otherwise, these are the steps to setup the keptn project and test the SLO validation all from the SSH session within the host.
+
 ### Setup required variables (post keptn install) for authorizing keptn CLI
 
 ```
@@ -174,7 +177,7 @@ keptn add-resource --project=demo --stage=dev --service=simplenodeservice --reso
 keptn add-resource --project=demo --stage=dev --service=simplenodeservice --resource=sli.yaml --resourceUri=dynatrace/sli.yaml
 ```
 
-### generate some app traffic and test quality gate using keptn CLI
+### generate some app traffic and test SLO validation using keptn CLI
 
 ```
 ./sendtraffic.sh "http://localhost:8080" 150
