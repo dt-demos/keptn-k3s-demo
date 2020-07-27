@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
       - name: simplenodeservice
-        image: docker.io/dtdemos/simplenodeservice:1
+        image: docker.io/grabnerandi/simplenodeservice:1.0.0
         env:
         - name: JAVA_OPTS
           value: -Xms128m -Xmx512m -XX:PermSize=128m -XX:MaxPermSize=128m -XX:+UseG1GC -Djava.security.egd=file:/dev/urandom
@@ -40,7 +40,7 @@ spec:
             fieldRef:
               fieldPath: "metadata.labels['deployment']"
         - name: CONTAINER_IMAGE
-          value: docker.io/dtdemos/simplenodeservice:1
+          value: docker.io/grabnerandi/simplenodeservice:1.0.0
         - name: DT_CUSTOM_PROP
           value: "keptn_stage=dev keptn_project=demo keptn_service=simplenodeservice"
         resources:
