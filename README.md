@@ -156,7 +156,8 @@ cd keptn-k3s-demo
 
 # USE CASES
 
-## Use Case #1 - Onboard Demo Application to Keptn manually
+<details>
+  <summary>Use Case #1 - Onboard Demo Application to Keptn manually</summary>
 
 This set of steps prepares the the keptn project from a SSH session within the host.
 
@@ -205,7 +206,11 @@ echo "Bridge URL = https://bridge.keptn.$(curl -s http://checkip.amazonaws.com/)
 keptn configure bridge --output
 ```
 
-## Use Case #2 - Test the SLO validation without a pipeline 
+</details>
+
+<details>
+  <summary>Use Case #2 - Test the SLO validation without a pipeline</summary>
+
 
 This assumes you have completed the Keptn Onbaording already. (i.e. USE CASE #1)
 
@@ -227,8 +232,10 @@ keptn configure bridge --output
 
 This set of steps prepares the the keptn project and test the SLO validation all from the SSH session within the host.
 
+</details>
 
-## Use Case #3 - Test the SLO validation from a pipeline in Azure Devops
+<details>
+  <summary>Use Case #3 - Test the SLO validation from a pipeline in Azure Devops</summary>
 
 This assumes you have completed the Keptn Onbaording already. (i.e. USE CASE #1)
 
@@ -300,4 +307,4 @@ echo "Bridge URL = https://bridge.keptn.$(curl -s http://checkip.amazonaws.com/)
 keptn configure bridge --output
 ```
 
-
+</details>
