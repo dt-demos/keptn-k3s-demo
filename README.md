@@ -1,23 +1,40 @@
 # Overview
 
-Use Case:
+This repo is show the how to setup Keptn with simple demo app for demonstrating quality gate use cases.  Instructions are provide to setup Keptn, a demo app, and running the keptn use case from Azure DevOps or manually.
 
-* Simple demo for keptn and bridge setup with simple demo app
-* The setup can be use to demo automated SLO valdiation can be performed within a pipeline tool like Azure DevOps or Atlassian bitbucket pipeline
+![bridge](./images/bridge.png)
 
-Setup: 
-* Keptn 0.7 (https://keptn.sh) on k3s on either AWS EC2 or Azure VM. 
-* Demo app running on the same host as Keptn.  The Docker image is pre-built and can be deployed in k3s or just run as docker container
-* Dynatrace OneAgent installed on the host
-* The demo app is onboarded to keptn as a project called `demo`, one stage called `dev` and on service called `simplenodeservice`
+The following Code is referenced in this demo:
+
+* Keptn - https://keptn.sh
+* K3s Keptn installer - https://github.com/keptn-sandbox/keptn-on-k3s
+* Prepare Project - https://github.com/dt-demos/keptn-prepare-project-bash
+* Quality Gate - https://github.com/keptn-sandbox/keptn-quality-gate-bash
+* Simple NodeJS Demo App - https://github.com/keptn/examples/tree/master/simplenodeservice
+
+# Setup
+
+Referring to the diagram below, this is the demo setup:
+
+1. Azure Devops - This is not required, but for the Azure Devops pipeline use case, the pipeline will call Keptn and run load tests against the demo application
+1. Linux host for Keptn and Demo App. Instructions are below for setting this up as AWS EC2 instance and Azure Virtual Machine
+1. Lightweight Kubernetes using [K3s](https://k3s.io/)
+1. Keptn 0.7 (https://keptn.sh) running with k3s
+1. Demo app is a single Docker image that cab be deloyed within k3s or just run as docker container on the host
+1. Dynatrace OneAgent that monitors the demo application.
+
+![setup](./images/setup.png)
 
 # Keptn Setup on K3s
 
 ## 1. dynatrace
 
 * need to have a Dynatrace tenant
-* you need to make an api token for keptn installer to use
-* NOTE the Keptn installer will create the autotagging rules for keptn_project, keptn_service, keptn_stage based on DT_CUSTOM_PROP values
+* you need to make an api token for keptn installer to use.  See the [Keptn Docs](https://keptn.sh/docs/0.7.x/monitoring/dynatrace/install/#1-create-a-secret-with-required-credentials) for API Token setup requirements.
+
+The Keptn installer will create the autotagging rules for keptn_project, keptn_service, keptn_stage based on DT_CUSTOM_PROP values. Here is how it looks within Dynatrace:
+
+![app](./images/app.png)
 
 ## 2. Provison a host for Keptn
 
@@ -49,6 +66,8 @@ Goto the cloud provider web console and add the VM following the guide below.  Y
   curl -Lsf https://raw.githubusercontent.com/keptn-sandbox/keptn-on-k3s/0.7.0/install-keptn-on-k3s.sh | bash -s - --ip $PUBLIC_IP --with-dynatrace --with-jmeter
   ```
 
+  **NOTE: Be sure to save the URLs, Tokens, and Bridge passwords for later.**
+
 </details>
 
 <details>
@@ -62,27 +81,37 @@ Goto the cloud provider web console and add the VM following the guide below.  Y
   * 16 GB storage
   * open port 80, 443, 22, 8080
 
-  ### Setup keptn-on-k3s for No Certificate
+  <details>
+    <summary>Setup keptn-on-k3s for No Certificate</summary>
 
-  This will make the DNS use xip.ip, for example $PUBLIC_IP.xip.io
-  
-    ```
-    export DT_TENANT=abc12345.live.dynatrace.com
-    export DT_API_TOKEN=YOURTOKEN
-    curl -Lsf https://raw.githubusercontent.com/keptn-sandbox/keptn-on-k3s/support-for-keptn-0-7/install-keptn-on-k3s.sh | bash -s - --provider aws --with-dynatrace --with-jmeter
-    ```
+      This will make the DNS use xip.ip, for example $PUBLIC_IP.xip.io
+      
+        ```
+        export DT_TENANT=abc12345.live.dynatrace.com
+        export DT_API_TOKEN=YOURTOKEN
+        curl -Lsf https://raw.githubusercontent.com/keptn-sandbox/keptn-on-k3s/support-for-keptn-0-7/install-keptn-on-k3s.sh | bash -s - --provider aws --with-dynatrace --with-jmeter
+        ```
 
-  ### Setup keptn-on-k3s with Certificate
+      NOTE: Be sure to save the URLs, Tokens, and Bridge passwords for later.
 
-  Assumes you have a Route53 DNS pointing to the public IP. Example FQDN value: jahn-keptn.alliances.dynatracelabs.com
+  </details>
 
-  ```
-  export LE_STAGE=production
-  export CERT_EMAIL=noreply@dynatrace.com 
-  export DT_TENANT=YOUR TENANT WITHOUT THE HTTPS:// PREFIX (e.g. abc12345.live.dynatrace.com)
-  export DT_API_TOKEN=YOURTOKEN
-  curl -Lsf https://raw.githubusercontent.com/keptn-sandbox/keptn-on-k3s/support-for-keptn-0-7/install-keptn-on-k3s.sh | bash -s - --provider aws --with-dynatrace --with-jmeter --letsencrypt --fqdn YOUR-FQDN
-  ```
+  <details>
+    <summary>Setup keptn-on-k3s with Certificate</summary>
+
+      Assumes you have a Route53 DNS pointing to the public IP. Example FQDN value: jahn-keptn.alliances.dynatracelabs.com
+
+      ```
+      export LE_STAGE=production
+      export CERT_EMAIL=noreply@dynatrace.com 
+      export DT_TENANT=YOUR TENANT WITHOUT THE HTTPS:// PREFIX (e.g. abc12345.live.dynatrace.com)
+      export DT_API_TOKEN=YOURTOKEN
+      curl -Lsf https://raw.githubusercontent.com/keptn-sandbox/keptn-on-k3s/support-for-keptn-0-7/install-keptn-on-k3s.sh | bash -s - --provider aws --with-dynatrace --with-jmeter --letsencrypt --fqdn YOUR-FQDN
+      ```
+
+      NOTE: Be sure to save the URLs, Tokens, and Bridge passwords for later.
+
+  </details>
 
 </details>
 
@@ -156,8 +185,127 @@ cd keptn-k3s-demo
 
 # USE CASES
 
+These use cases assume you have setup Demo App as described above.
+
 <details>
-  <summary>Use Case #1 - Onboard Demo Application to Keptn manually</summary>
+  <summary>Use Case #1 - Test the Prepare and SLO validation from a pipeline in Azure Devops</summary>
+
+This example assumes you will be using Dynatrace as a [Keptn SLI provider](https://keptn.sh/docs/0.7.x/monitoring/dynatrace/sli_provider/).  This use case uses the Dockerized scripts from these projects:
+
+* Prepare Project - https://github.com/dt-demos/keptn-prepare-project-bash
+* Quality Gate - https://github.com/keptn-sandbox/keptn-quality-gate-bash
+
+### 1. Create an Azure DevOps project called keptn-k3s
+
+When the pipeline is setup, it will look like this:
+
+![release](./images/release.png)
+
+![pipeline](./images/pipeline.png)
+
+### 2. Import a Git repository
+
+From the repo page, choose `Import a Git repository` and choose `git` and URL of `https://github.com/dt-demos/keptn-k3s-demo.git`
+
+### 3. Create a release pipeline
+
+If prompted, pick an `empty job` template.
+
+On the `add an artifact`, choose `Azure Repos Git`, `keptn-k3s` project, the repo created above called `keptn-k3s`, and master branch.
+  
+Keep the default artifact alias name of `keptn-k3s`
+
+### 4. Add these as pipeline variables
+
+Below are example values, adjust according your environment.  See [Prepare Project README](https://github.com/dt-demos/keptn-prepare-project-bash) and [Quality Gate README](https://github.com/keptn-sandbox/keptn-quality-gate-bash) files for more details.
+
+```
+KeptnApiUrl      = [your url e.g. https://xx.xx.xx.xx/api]
+KeptnApiToken    = [your token]
+KeptnProject     = demo
+KeptnService     = simplenodeservice
+KeptnStage       = dev
+ProcessType      = [one of these values: ignore | fail_on_warning | pass_on_warning]
+ShipyardFile     = /tmp/shipyard.yaml
+SloFile          = /tmp/slo.yaml
+DynatraceSliFile = /tmp/dynatrace-sli.yaml
+```
+
+When the variables are setup, it will look like this:
+
+![variables](./images/variables.png)
+
+### 5. Add a Powershell task to Prepare Keptn Project
+
+Call the task `Keptn Prepare Project` with this code
+
+```
+docker run -i --env KEPTN_URL=$(KeptnApiUrl) --env KEPTN_TOKEN=$(KeptnApiToken) --env PROJECT=$(KeptnProject) --env SERVICE=$(KeptnService) --env STAGE=$(KeptnStage) --env SOURCE=Azure-DevOps --env SHIPYARD_FILE=$(ShipyardFile) --env SLO_FILE=$(SloFile) --env DYNATRACE_SLI_FILE=$(DynatraceSliFile) --env DEBUG=true -v /home/vsts/work/r1/a/_keptn-k3s:/tmp $(KeptnImage)
+```
+
+NOTE: You may need to adjust the Docker mapping. This example uses the value from `System.DefaultWorkingDirectory` Azure Builtin [Release Variable](https://docs.microsoft.com/en-us/azure/devops/pipelines/release/variables?view=azure-devops&tabs=batch
+)
+
+### 6. Add a Powershell task to Capture Evaluation Start Time
+
+Call the task `Set Test Start Time` with this code
+
+```
+$StartTime = (get-date).ToUniversalTime().toString("yyyy-MM-ddTHH:mm:ssZ")
+
+Write-Host "==============================================================="
+Write-Host "StartTime: "$StartTime
+Write-Host "==============================================================="
+
+Write-Host ("##vso[task.setvariable variable=StartTime]$StartTime")
+```
+
+### 7. Add a Bask task to Send Traffice
+
+Call the task `Send Traffic` with this code
+
+```
+$(System.DefaultWorkingDirectory)/_keptn/sendtraffic.sh
+http://IP TO YOUR HOST:8080 10
+```
+
+### 8. Add a Powershell task to Capture Evaluation Start Time
+
+Call the task `Set Test End Time` with this code
+
+```
+$EndTime = (get-date).ToUniversalTime().toString("yyyy-MM-ddTHH:mm:ssZ")
+Write-Host "==============================================================="
+Write-Host "EndTime:   "$EndTime
+Write-Host "==============================================================="
+
+Write-Host ("##vso[task.setvariable variable=EndTime]$EndTime")
+```
+
+### 9. Add a Powershell task to call the Keptn Quality Gate
+
+Call the task `Keptn Quality Gate` with this code
+
+```
+docker run -i --env KEPTN_URL=$(KeptnApiUrl) --env KEPTN_TOKEN=$(KeptnApiToken) --env START=$(StartTime) --env END=$(EndTime) --env PROJECT=$(KeptnProject) --env SERVICE=$(KeptnService) --env STAGE=$(KeptnStage) --env PROCESS_TYPE=$(ProcessType) --env SOURCE=Azure-DevOps --env DEBUG=true --env LABELS='{\"source\":\"Azure-DevOps-Inline\",\"buildId\":\"$(Release.ReleaseName)\"}' robjahn/keptn-quality-gate-bash
+
+```
+
+### 10. Review results
+
+Open up the Keptn Bridge in a browser and you should now see and monitor the evaluation under the project `simplenodeservice` and and a stage `dev`.
+
+If you did not capture them earlier, use these command to get the URL and credentials:
+
+```
+echo "Bridge URL = https://bridge.keptn.$(curl -s http://checkip.amazonaws.com/).xip.io"
+keptn configure bridge --output
+```
+
+</details>
+
+<details>
+  <summary>Use Case #2 - Onboard Demo Application to Keptn manually (no pipeline)</summary>
 
 This set of steps prepares the the keptn project from a SSH session within the host.
 
@@ -209,10 +357,10 @@ keptn configure bridge --output
 </details>
 
 <details>
-  <summary>Use Case #2 - Test the SLO validation without a pipeline</summary>
+  <summary>Use Case #3 - Test the SLO validation manually (no pipeline)</summary>
 
 
-This assumes you have completed the Keptn Onbaording already. (i.e. USE CASE #1)
+This assumes you have completed the Keptn Onbaording already. (i.e. USE CASE #1 or #2)
 
 ### 1. Send load and invoke the keptn `start-evaluation` event using the Keptn CLI
 
@@ -231,80 +379,5 @@ keptn configure bridge --output
 ```
 
 This set of steps prepares the the keptn project and test the SLO validation all from the SSH session within the host.
-
-</details>
-
-<details>
-  <summary>Use Case #3 - Test the SLO validation from a pipeline in Azure Devops</summary>
-
-This assumes you have completed the Keptn Onbaording already. (i.e. USE CASE #1)
-
-This use case uses the Dockerized script from this project for the SLO validation.
-https://github.com/keptn-sandbox/keptn-quality-gate-bash
-
-### 1. Create a release pipeline
-
-### 2. Add these as pipeline variables
-
-KeptnApiUrl - https://xx.xx.xx.xx/api
-KeptnApiToken
-KeptnImage - robjahn/keptn-quality-gate-bash
-KeptnProject - demo
-KeptnService  - dev
-ProcessType - ignore | fail_on_warning | pass_on_warning
-
-### 3. Add a Powershell task
-
-Call the task `Set Test Start Time` with this code
-
-```
-$StartTime = (get-date).ToUniversalTime().toString("yyyy-MM-ddTHH:mm:ssZ")
-
-Write-Host "==============================================================="
-Write-Host "StartTime: "$StartTime
-Write-Host "==============================================================="
-
-Write-Host ("##vso[task.setvariable variable=StartTime]$StartTime")
-```
-
-### 4. Add a Bask task
-
-Call the task `Send Traffic` with this code
-
-```
-$(System.DefaultWorkingDirectory)/_keptn/sendtraffic.sh
-http://IP TO YOUR HOST:8080 10
-```
-
-
-### 5. Add a Powershell task
-
-Call the task `Set Test End Time` with this code
-
-```
-$EndTime = (get-date).ToUniversalTime().toString("yyyy-MM-ddTHH:mm:ssZ")
-Write-Host "==============================================================="
-Write-Host "EndTime:   "$EndTime
-Write-Host "==============================================================="
-
-Write-Host ("##vso[task.setvariable variable=EndTime]$EndTime")
-```
-
-### 5. Add a Powershell task
-
-Call the task `Keptn Quality Gate` with this code
-
-```
-docker run -i --env KEPTN_URL=$(KeptnApiUrl) --env KEPTN_TOKEN=$(KeptnApiToken) --env START=$(StartTime) --env END=$(EndTime) --env PROJECT=$(KeptnProject) --env SERVICE=$(KeptnService) --env STAGE=$(KeptnStage) --env PROCESS_TYPE=$(ProcessType) --env SOURCE=Azure-DevOps --env DEBUG=true --env LABELS='{\"source\":\"Azure-DevOps-Inline\",\"build\":\"$(Release.ReleaseName)\"}' $(KeptnImage)
-```
-
-### 6. Open up the Keptn Bridge in a browser and you should now see and monitor the evaluation under the project `simplenodeservice` and and a stage `dev`
-
-Use these command to get the URL and credentials:
-
-```
-echo "Bridge URL = https://bridge.keptn.$(curl -s http://checkip.amazonaws.com/).xip.io"
-keptn configure bridge --output
-```
 
 </details>
