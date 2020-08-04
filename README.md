@@ -240,7 +240,7 @@ When the variables are setup, it will look like this:
 Call the task `Keptn Prepare Project` with this code
 
 ```
-docker run -i --env KEPTN_URL=$(KeptnApiUrl) --env KEPTN_TOKEN=$(KeptnApiToken) --env PROJECT=$(KeptnProject) --env SERVICE=$(KeptnService) --env STAGE=$(KeptnStage) --env SOURCE=Azure-DevOps --env SHIPYARD_FILE=$(ShipyardFile) --env SLO_FILE=$(SloFile) --env DYNATRACE_SLI_FILE=$(DynatraceSliFile) --env DEBUG=true -v /home/vsts/work/r1/a/_keptn-k3s:/tmp $(KeptnImage)
+docker run -i --env KEPTN_URL=$(KeptnApiUrl) --env KEPTN_TOKEN=$(KeptnApiToken) --env PROJECT=$(KeptnProject) --env SERVICE=$(KeptnService) --env STAGE=$(KeptnStage) --env SOURCE=Azure-DevOps --env SHIPYARD_FILE=$(ShipyardFile) --env SLO_FILE=$(SloFile) --env DYNATRACE_SLI_FILE=$(DynatraceSliFile) --env DEBUG=true -v /home/vsts/work/r1/a/_keptn-k3s:/tmp dtdemos/keptn-docker-tasks:0.1.0 prepareproject
 ```
 
 NOTE: You may need to adjust the Docker mapping. This example uses the value from `System.DefaultWorkingDirectory` Azure Builtin [Release Variable](https://docs.microsoft.com/en-us/azure/devops/pipelines/release/variables?view=azure-devops&tabs=batch
@@ -287,7 +287,7 @@ Write-Host ("##vso[task.setvariable variable=EndTime]$EndTime")
 Call the task `Keptn Quality Gate` with this code
 
 ```
-docker run -i --env KEPTN_URL=$(KeptnApiUrl) --env KEPTN_TOKEN=$(KeptnApiToken) --env START=$(StartTime) --env END=$(EndTime) --env PROJECT=$(KeptnProject) --env SERVICE=$(KeptnService) --env STAGE=$(KeptnStage) --env PROCESS_TYPE=$(ProcessType) --env SOURCE=Azure-DevOps --env DEBUG=true --env LABELS='{\"source\":\"Azure-DevOps-Inline\",\"buildId\":\"$(Release.ReleaseName)\"}' robjahn/keptn-quality-gate-bash
+docker run -i --env KEPTN_URL=$(KeptnApiUrl) --env KEPTN_TOKEN=$(KeptnApiToken) --env START=$(StartTime) --env END=$(EndTime) --env PROJECT=$(KeptnProject) --env SERVICE=$(KeptnService) --env STAGE=$(KeptnStage) --env PROCESS_TYPE=$(ProcessType) --env SOURCE=Azure-DevOps --env DEBUG=true --env LABELS='{\"source\":\"Azure-DevOps-Inline\",\"buildId\":\"$(Release.ReleaseName)\"}' dtdemos/keptn-docker-tasks:0.1.0 qualitygate
 
 ```
 
