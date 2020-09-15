@@ -115,7 +115,7 @@ Goto the cloud provider web console and add the VM following the guide below.  Y
       export CERT_EMAIL=noreply@dynatrace.com 
       export DT_TENANT=YOUR TENANT WITHOUT THE HTTPS:// PREFIX (e.g. abc12345.live.dynatrace.com)
       export DT_API_TOKEN=YOURTOKEN
-      curl -Lsf https://raw.githubusercontent.com/keptn-sandbox/keptn-on-k3s/support-for-keptn-0-7/install-keptn-on-k3s.sh | bash -s - --provider aws --with-dynatrace --with-jmeter --letsencrypt --fqdn YOUR-FQDN
+      curl -Lsf https://raw.githubusercontent.com/keptn-sandbox/keptn-on-k3s/0.7.1/install-keptn-on-k3s.sh | bash -s - --provider aws --with-dynatrace --with-jmeter --letsencrypt --fqdn YOUR-FQDN
       ```
 
       NOTE: Be sure to save the URLs, Tokens, and Bridge passwords for later.
@@ -270,7 +270,7 @@ Write-Host "==============================================================="
 Write-Host ("##vso[task.setvariable variable=StartTime]$StartTime")
 ```
 
-### 7. Add a Bask task to Send Traffice
+### 7. Add a Bask task to Send Traffic
 
 Call the task `Send Traffic` with this code
 
