@@ -31,6 +31,10 @@ fi
 
 # verify ready application is up
 ./wait-until-ready.sh $url
+if [ $? -ne 0 ]; then
+  echo "Application not ready. Aborting." 1>&2
+  exit 1
+fi
 
 ###################################################
 # set variables used by script

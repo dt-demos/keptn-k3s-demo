@@ -18,8 +18,7 @@ Refer to the image tagging for Keptn version compatibility
 
 | Keptn Version    | 
 |:----------------:|
-|      0.7.1       |
-
+|      0.7.3       |
 
 # Setup
 
@@ -90,37 +89,43 @@ Goto the cloud provider web console and add the VM following the guide below.  Y
   * 16 GB storage
   * open port 80, 443, 22, 8080
 
-  <details>
-    <summary>Setup keptn-on-k3s for No Certificate</summary>
+  ### Setup keptn-on-k3s with Certificate
 
-      This will make the DNS use xip.ip, for example $PUBLIC_IP.xip.io
-      
-        ```
-        export DT_TENANT=abc12345.live.dynatrace.com
-        export DT_API_TOKEN=YOURTOKEN
-        curl -Lsf https://raw.githubusercontent.com/keptn-sandbox/keptn-on-k3s/0.7.1/install-keptn-on-k3s.sh | bash -s - --provider aws --with-dynatrace --with-jmeter
-        ```
+  Assumes you have a Route53 DNS pointing to the public IP of the EC2 instance.  **_Be sure to wildcard the record name_**.
+  
+  Here is an example:
 
-      NOTE: Be sure to save the URLs, Tokens, and Bridge passwords for later.
+  ![app](./images/route53.png)
 
-  </details>
+  ```
+  # Adjust these values
+  export KEPTN_FQDN=Example FQDN value: jahn-keptn.alliances.dynatracelabs.com
+  export DT_TENANT=YOUR TENANT WITHOUT THE HTTPS:// PREFIX (e.g. abc12345.live.dynatrace.com)
+  export DT_API_TOKEN=YOURTOKEN
 
-  <details>
-    <summary>Setup keptn-on-k3s with Certificate</summary>
+  # keep these values
+  export LE_STAGE=production
+  export CERT_EMAIL=noreply@dynatrace.com 
+  curl -Lsf https://raw.githubusercontent.com/keptn-sandbox/keptn-on-k3s/dynatrace-support/install-keptn-on-k3s.sh | bash -s - --provider aws --with-dynatrace --with-jmeter --letsencrypt --fqdn $KEPTN_FQDN
 
-      Assumes you have a Route53 DNS pointing to the public IP. Example FQDN value: jahn-keptn.alliances.dynatracelabs.com
+  ```
 
-      ```
-      export LE_STAGE=production
-      export CERT_EMAIL=noreply@dynatrace.com 
-      export DT_TENANT=YOUR TENANT WITHOUT THE HTTPS:// PREFIX (e.g. abc12345.live.dynatrace.com)
-      export DT_API_TOKEN=YOURTOKEN
-      curl -Lsf https://raw.githubusercontent.com/keptn-sandbox/keptn-on-k3s/support-for-keptn-0-7/install-keptn-on-k3s.sh | bash -s - --provider aws --with-dynatrace --with-jmeter --letsencrypt --fqdn YOUR-FQDN
-      ```
+  NOTE: Be sure to save the URLs, Tokens, and Bridge passwords for later.
 
-      NOTE: Be sure to save the URLs, Tokens, and Bridge passwords for later.
+  ### Configure tools
 
-  </details>
+  If you need GIT & JQ
+  ```
+  sudo yum update -y
+  sudo yum install git -y
+  sudo yum install jq -y
+  ```
+
+  To get an alias to kubectl
+  ```
+  echo "alias kubectl='k3s kubectl'" >> ~/.bash_profile
+  source ~/.bash_profile
+  ```
 
 </details>
 
@@ -141,10 +146,10 @@ cd keptn-k3s-demo
   ### alias for kubectl -- I am lazy or efficient you decide :)
 
   ```
-  alias k='k3s kubectl'
-  alias kk='k3s kubectl -n keptn'
-  alias kd='k3s kubectl -n dev'
-  alias kubectl='k3s kubectl'
+  alias k='k3s kubectl' >> ~/.bash_profile
+  alias kk='k3s kubectl -n keptn' >> ~/.bash_profile
+  alias kd='k3s kubectl -n dev' >> ~/.bash_profile
+  source ~/.bash_profile
   ```
 
   ### install demo app and verify status and in a browser
@@ -168,12 +173,23 @@ cd keptn-k3s-demo
   ```
   sudo yum update -y
   sudo amazon-linux-extras install docker
-  sudo yum install docker
+  sudo yum install docker -y
   sudo service docker start
   sudo usermod -a -G docker ec2-user
-  docker info
+  sudo docker info
   ```
   *Reference:* https://docs.aws.amazon.com/AmazonECS/latest/developerguide/docker-basics.html
+
+  ### install docker-compose
+
+  Run these commands within the ec2 instance
+
+  ```
+  sudo curl -L "https://github.com/docker/compose/releases/download/1.28.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/bin/docker-compose
+  sudo chmod +x /usr/bin/docker-compose
+  docker-compose version
+  ```
+  *Reference:* https://docs.docker.com/compose/install/
 
   ### Start Sample Application
 
@@ -350,7 +366,7 @@ keptn create project demo --shipyard=shipyard.yaml
 keptn create service simplenodeservice --project=demo
 keptn configure monitoring dynatrace --project=demo
 keptn add-resource --project=demo --stage=dev --service=simplenodeservice --resource=slo.yaml --resourceUri=slo.yaml
-keptn add-resource --project=demo --stage=dev --service=simplenodeservice --resource=sli.yaml --resourceUri=dynatrace/sli.yaml
+keptn add-resource --project=demo --stage=dev --service=simplenodeservice --resource=dynatrace-sli.yaml --resourceUri=dynatrace/sli.yaml
 ```
 
 ### 4. Verify demo app onboarding
@@ -364,6 +380,12 @@ echo "Bridge URL = https://bridge.keptn.$(curl -s http://checkip.amazonaws.com/)
 keptn configure bridge --output
 ```
 
+Optional set a new password
+
+```
+keptn configure bridge --user=keptn --password=NEW_PASSWORD
+```
+
 </details>
 
 <details>
@@ -375,7 +397,7 @@ This assumes you have completed the Keptn Onbaording already. (i.e. USE CASE #1 
 ### 1. Send load and invoke the keptn `start-evaluation` event using the Keptn CLI
 
 ```
-./sendtraffic.sh "http://localhost:8080" 150
+./sendtraffic.sh "http://localhost:8080" 150 > /dev/null & 
 keptn send event start-evaluation --project=demo --stage=dev --service=simplenodeservice
 ```
 
