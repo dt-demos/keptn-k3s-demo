@@ -1,6 +1,8 @@
 # Overview
 
-This repo is show the how to setup Keptn with simple demo app for demonstrating quality gate use cases.  Instructions are provide to setup Keptn, a demo app, and running the keptn use case from Azure DevOps or manually.
+This repo is show the how to setup Keptn with simple demo app for demonstrating quality gate use cases.  **NOTE: K3S does not support Keptn deployments, so this Keptn setup will only support demonstrating quality gate use case.**
+
+Instructions are provide to setup Keptn, a demo app, and running the keptn use case for sending the Keptn events to trigger a quality gate evaluation.
 
 ![bridge](./images/bridge.png)
 
@@ -24,7 +26,7 @@ Refer to the image tagging for Keptn version compatibility
 
 Referring to the diagram below, this is the demo setup:
 
-1. Azure Devops - This is not required, but for the Azure Devops pipeline use case, the pipeline will call Keptn and run load tests against the demo application
+1. Code pipeline tool - The pipeline tasks will call Keptn and run load tests against the demo application.  Azure Devops is shown as a full example in use case 1 below, but any pipeline tool like Jenkins or GitLab can be used to send the keptn quality gate events. Keptn events can also be sent manually as shown in use case 2 and 3 below.
 1. Linux host for Keptn and Demo App. Instructions are below for setting this up as AWS EC2 instance and Azure Virtual Machine
 1. Lightweight Kubernetes using [K3s](https://k3s.io/)
 1. Keptn (https://keptn.sh) running with k3s
@@ -286,7 +288,7 @@ Write-Host "==============================================================="
 Write-Host ("##vso[task.setvariable variable=StartTime]$StartTime")
 ```
 
-### 7. Add a Bask task to Send Traffice
+### 7. Add a Bask task to Send Traffic
 
 Call the task `Send Traffic` with this code
 
